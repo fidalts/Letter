@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Letterbox 💌</title>
+  <style>
+    :root{
+      --bg-from:#fdeef4; --bg-to:#fff5f8;
+      --card:#ffffff; --ink:#2a2a2a; --muted:#6b6b6b;
+      --accent:#ff4d7e; --accent-strong:#e23a6a; --ring:#ffd1df;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--ink);
+      background: linear-gradient(180deg,var(--bg-from),var(--bg-to));
+      overflow:hidden;
+    }
+    /* Floating layer */
+    .float-layer{
+      position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.08));
+    }
+    .floater{
+      position:absolute; bottom:-10vh; user-select:none;
+      animation: rise var(--dur,12s) linear var(--delay,0s) infinite,
+                 sway var(--dur-sway,6s) ease-in-out var(--delay,0s) infinite;
+      will-change: transform, opacity;
+      opacity:0;
+    }
+    @keyframes rise{
+      0%{ transform: translate3d(var(--x,0px), 0, 0) scale(var(--scale,1)); opacity:0 }
+      8%{ opacity:.9 }
+      92%{ opacity:.9 }
+      100%{ transform: translate3d(var(--x,0px), -120vh, 0) scale(var(--scale,1)); opacity:0 }
+    }
+    @keyframes sway{
+      0%{   margin-left:-2vw }
+      50%{  margin-left: 2vw }
+      100%{ margin-left:-2vw }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .floater{ animation: none }
+    }
+
+    /* Center card */
+    .wrap{
+      position:relative; z-index:1; height:100%; display:grid; place-items:center; padding:24px;
+    }
+    .card{
+      width:100%; max-width:480px; background:var(--card);
+      border-radius:24px; padding:24px 22px; box-shadow: 0 20px 50px rgba(0,0,0,.08);
+      border:1px solid #fff0f5; transform: translateY(16px); opacity:0;
+      animation: pop-in .7s cubic-bezier(.2,.8,.2,1) .2s forwards;
+    }
+    @keyframes pop-in{
+      to{ transform:none; opacity:1 }
+    }
+    .envelope-top{
+      width:72px; height:48px; margin:0 auto 10px; position:relative;
+      background:linear-gradient(180deg,#fff,#ffeef5);
+      border:1px solid #ffe2ea; border-bottom:none; border-radius:12px 12px 0 0;
+    }
+    .envelope-top:before{
+      content:""; position:absolute; left:50%; bottom:-1px; transform:translateX(-50%);
+      border-left:36px solid transparent; border-right:36px solid transparent;
+      border-top:24px solid #fff; filter:drop-shadow(0 2px 0 #ffe2ea);
+    }
+    h1{ font-size:1.6rem; margin:6px 0 4px; text-align:center; letter-spacing:.3px }
+    p.sub{ margin:0 0 16px; color:var(--muted); text-align:center; font-size:.98rem }
+    label{ display:block; font-weight:600; margin-bottom:8px }
+    textarea{
+      width:100%; min-height:132px; padding:12px 14px;
+      border-radius:16px; border:1.5px solid #ffd6e3; font:inherit; line-height:1.4;
+      background:#fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+    }
+    textarea[readonly]{ background:#fdfdfd; color:var(--muted); cursor:not-allowed }
+    .footer-note{
+      text-align:center; color:var(--muted); font-size:.85rem; margin-top:10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="float-layer" aria-hidden="true" id="floatLayer"></div>
+
+  <main class="wrap">
+    <section class="card" aria-label="Letterbox">
+      <div class="envelope-top" aria-hidden="true"></div>
+      <h1>💌</h1>
+
+      <textarea id="msg" placeholder="(Read-only demo)" readonly>
+To the Queen
+
+My dear, we have talked so much last night.
+I screwed up big time.
+You didn't deserve any of that and I wanted to say that I did not do anything to hurt you intentionally.
+I don’t want to hurt you anymore, even if it's not intentional. It's not just words—I will make sure you will feel what I said.
+I have the eagerness to do that, I want to make sure you will feel that whatever it takes. I promise that to myself.
+
+I apologize for everything. Please be kind and please once more forgive me, my lady.
+      </textarea>
+
+      <p class="footer-note">From Yours Only Kinght ❤️ </p>
+    </section>
+  </main>
+
+  <script>
+    // --- Floaters (❤️ / 🎈) ---
+    (function(){
+      const layer = document.getElementById('floatLayer');
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const EMOJIS = ['❤️','🎈'];
+      const MAX = prefersReduced ? 0 : 32;
+
+      function spawnOne(){
+        const el = document.createElement('div');
+        el.className = 'floater';
+        el.textContent = EMOJIS[Math.random() < 0.5 ? 0 : 1];
+
+        const left = Math.random() * 100;
+        const scale = 0.8 + Math.random() * 1.4;
+        const dur = 10 + Math.random() * 12;
+        const sway = 5 + Math.random() * 7;
+        const delay = Math.random() * 8;
+        const xDrift = (-20 + Math.random()*40) + 'px';
+
+        el.style.left = left + 'vw';
+        el.style.setProperty('--scale', scale.toFixed(2));
+        el.style.setProperty('--dur', dur.toFixed(2)+'s');
+        el.style.setProperty('--dur-sway', sway.toFixed(2)+'s');
+        el.style.setProperty('--delay', delay.toFixed(2)+'s');
+        el.style.setProperty('--x', xDrift);
+
+        el.addEventListener('animationend', () => {
+          el.remove();
+          if (!prefersReduced) queue();
+        });
+        layer.appendChild(el);
+      }
+      function queue(){
+        setTimeout(spawnOne, 400 + Math.random()*1200);
+      }
+      for (let i=0;i<MAX;i++) queue();
+    })();
+  </script>
+</body>
+</html>
